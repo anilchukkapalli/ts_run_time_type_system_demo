@@ -1,11 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import App from './App/App';
+import Customer from './Customer/Customer';
 import './index.css';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Customer />
+    </React.Suspense>
   </React.StrictMode>,
   document.getElementById('root'),
 );
