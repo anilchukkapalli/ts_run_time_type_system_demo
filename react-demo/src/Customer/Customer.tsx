@@ -29,20 +29,24 @@ type CustomerProps = {
 }
 
 function Customers(props: CustomerProps): JSX.Element {
-    let { data } = useSnapshot(api.key(props.uri));
+    let { data }:{data: CustomerInfo[]} = useSnapshot(api.key(props.uri));
     return (<div>
-        {data.map(e => <div key={e.id}>
-                <div>FirstName: {e.firstName}</div>
-                <div>LastName: {e.lastName}</div> 
-                <div>Street: {e.address.street}</div>
-                <div>City: {e.address.city}</div>
-                <div>State: {e.address.state}</div>
-                <div>Zip: {e.address.zip}</div>
-                <div>--------------------------</div>
-            </div>)}
+        {data.map(e => <CustomerDetail {...e} />)}
     </div>);
   }
 
+function CustomerDetail(props: CustomerInfo): JSX.Element {
+    return (
+    <div key={props.id}>
+        <div>FirstName: {props.firstName}</div>
+        <div>LastName: {props.lastName}</div>
+        <div>Street: {props.address.street}</div>
+        <div>City: {props.address.city}</div>
+        <div>State: {props.address.state}</div>
+        <div>Zip: {props.address.zip}</div>
+        <div>--------------------------</div>
+    </div>);
+}
 
 interface AppProps {}
 
