@@ -32,23 +32,19 @@ app.UseHttpsRedirection();
 
 app.MapGet("/customers", () =>
 {
-    var testAddress = new Address
-    (
-        Street: "123 Main St",
-        City: "Anytown",
-        State:"WA",
-        Zip: "12345"
-    );
-    var customers = new List<Customer>(){
-        new Customer("c1","peter","parker", testAddress),
-        new Customer("c2","bruce","wayne", testAddress),
-        new Customer("c3","john","doe", testAddress),
-    };
-    return customers;
+    return Enumerable.Range(1,10).Select(i => new Customer(
+        FirstName: Faker.Name.First(),
+        LastName: Faker.Name.Last(),
+        Id: $"c{i}",
+        Address: new Address
+        (
+            Street: Faker.Address.StreetAddress(),
+            City: Faker.Address.City(),
+            State: Faker.Address.UsStateAbbr(),
+            Zip: Faker.Address.ZipCode()
+        )
+    ));
 })
 .WithName<RouteHandlerBuilder>("GetCustomers");
 
 app.Run();
-
-record struct Customer(string Id, string FirstName, string LastName, Address Address);
-record struct Address(string Street, string City, string State, string Zip);
