@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +20,10 @@ builder.Services.AddCors(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Adding entity framework core
+builder.Services.AddDbContext<TodoDb>(opt => opt.UseInMemoryDatabase("TodoList"));
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -30,21 +36,26 @@ if (app.Environment.IsDevelopment())
 app.UseCors(MyAllowSpecificOrigins);
 app.UseHttpsRedirection();
 
-app.MapGet("/customers", () =>
-{
-    return Enumerable.Range(1,10).Select(i => new Customer(
-        FirstName: Faker.Name.First(),
-        LastName: Faker.Name.Last(),
-        Id: $"c{i}",
-        Address: new Address
-        (
-            Street: Faker.Address.StreetAddress(),
-            City: Faker.Address.City(),
-            State: Faker.Address.UsStateAbbr(),
-            Zip: Faker.Address.ZipCode()
-        )
-    ));
-})
-.WithName<RouteHandlerBuilder>("GetCustomers");
+app.MapGet("/customers", Customers.GetFakeCustomers)
+    .WithName<RouteHandlerBuilder>("GetCustomers");
+
+var todoItems = new TodoItems();
+app.MapGet("/todoitems", todoItems.GetTodoItemsAsync)
+    .WithName<RouteHandlerBuilder>("GetTodoItems");
+
+app.MapGet("/todoitems/complete", todoItems.GetTodoItemsCompleteAsync)
+    .WithName<RouteHandlerBuilder>("GetTodoItemsComplete");
+
+app.MapGet("/todoitems/{id}", todoItems.GetTodoItemAsync)
+    .WithName<RouteHandlerBuilder>("GetTodoItem");
+
+app.MapPost("/todoitems", todoItems.SaveTodoItemAsync);
+
+app.MapPut("/todoitems/{id}", todoItems.UpdateTodoItemAsync);
+
+app.MapDelete("/todoitems/{id}", todoItems.DeleteTodoItemAsync);
+
+app.MapGet("/fakeTodoitems", TodoItems.GetFakeTodoItems)
+    .WithName<RouteHandlerBuilder>("GetFakeTodoItems");
 
 app.Run();
